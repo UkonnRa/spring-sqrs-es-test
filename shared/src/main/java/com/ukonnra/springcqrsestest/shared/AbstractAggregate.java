@@ -19,7 +19,7 @@ import org.springframework.lang.Nullable;
 @Setter
 @ToString
 @EqualsAndHashCode
-public abstract class AbstractAggregate<E extends Event> {
+public abstract class AbstractAggregate<E extends Event> implements Entity {
   public static final int MIN_NAMELY = 2;
   public static final int MAX_NAMELY = 127;
   public static final int MAX_LONG_TEXT = 1023;
@@ -32,10 +32,6 @@ public abstract class AbstractAggregate<E extends Event> {
   private int version = -1;
 
   private @Nullable Instant deletedDate = null;
-
-  protected AbstractAggregate(final Collection<E> events) {
-    this.handleEvents(events);
-  }
 
   public void delete(final Instant timestamp) {
     if (this.deletedDate == null) {

@@ -1,8 +1,8 @@
 package com.ukonnra.springcqrsestest.shared.user;
 
 import com.ukonnra.springcqrsestest.shared.AbstractAggregate;
+import com.ukonnra.springcqrsestest.shared.Presentation;
 import jakarta.validation.constraints.Size;
-import java.util.Collection;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +12,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class User extends AbstractAggregate<UserEvent> {
+public class User extends AbstractAggregate<UserEvent> implements Presentation {
   public static final String TYPE = "users";
 
   @Size(min = MIN_NAMELY, max = MAX_NAMELY)
@@ -20,10 +20,6 @@ public class User extends AbstractAggregate<UserEvent> {
 
   @Size(min = MIN_NAMELY, max = MAX_NAMELY)
   private String displayName;
-
-  public User(Collection<UserEvent> events) {
-    super(events);
-  }
 
   public void setLoginName(String value) {
     final var trimmed = value.trim();

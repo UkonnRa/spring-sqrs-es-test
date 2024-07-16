@@ -5,6 +5,11 @@ import java.time.Instant;
 import java.util.UUID;
 
 public sealed interface UserEvent extends Event {
+  @Override
+  default String aggregateType() {
+    return User.TYPE;
+  }
+
   record Created(UUID id, int version, Instant createdDate, String loginName, String displayName)
       implements UserEvent {}
 

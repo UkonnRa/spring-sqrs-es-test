@@ -1,3 +1,3 @@
 package com.ukonnra.springcqrsestest.shared;
 
-public interface Repository {}
+public interface Entity {}
