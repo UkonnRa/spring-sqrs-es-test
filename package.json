@@ -1,0 +1,31 @@
+{
+  "packageManager": "yarn@4.3.1",
+  "version": "0.1.0",
+  "engines": {
+    "yarn": ">=4",
+    "node": ">=22"
+  },
+  "private": true,
+  "devDependencies": {
+    "@commitlint/cli": "19.3.0",
+    "@commitlint/config-conventional": "19.2.2",
+    "commitizen": "^4.3.0",
+    "commitlint": "19.3.0",
+    "concurrently": "^8.2.2",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^9.0.11",
+    "rimraf": "^6.0.1"
+  },
+  "scripts": {
+    "postinstall": "husky",
+    "lint:fix": "./gradlew spotlessApply",
+    "lint": "./gradlew check",
+    "upgrade": "yarn upgrade-interactive && rimraf '.yarn/cache' 'node_modules/' 'yarn.lock' && yarn && yarn upgrade:java",
+    "upgrade:java": "./gradlew dependencyUpdates"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

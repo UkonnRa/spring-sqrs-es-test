@@ -23,7 +23,6 @@ plugins {
 }
 
 group = "com.ukonnra"
-version = "0.0.1-SNAPSHOT"
 
 java {
   toolchain {
@@ -32,6 +31,8 @@ java {
 }
 
 allprojects {
+  version = "0.1.0"
+
   repositories {
     mavenCentral()
   }
@@ -59,6 +60,10 @@ subprojects {
     imports {
       mavenBom(SpringBootPlugin.BOM_COORDINATES)
     }
+  }
+
+  dependencies {
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
   }
 
   checkstyle {
@@ -122,15 +127,80 @@ subprojects {
     }
   }
 
-  if (plugins.hasPlugin(JavaPlugin::class)) {
-    apply<LibraryPlugin>()
+  afterEvaluate {
+    if (plugins.hasPlugin("org.springframework.boot")) {
+      apply(plugin = "org.graalvm.buildtools.native")
+
+      extensions.configure<SpringBootExtension> {
+        buildInfo()
+      }
+
+      extensions.configure<GraalVMExtension> {
+        binaries.all {
+          // Windows: Fix unknown error for: `Error: Classes that should be initialized at run time got initialized during image building`
+          buildArgs.add("--initialize-at-build-time=org.apache.catalina.connector.RequestFacade,org.apache.catalina.connector.ResponseFacade")
+        }
+      }
+
+      tasks.withType<BootJar> {
+        val jlinkTask = tasks.register("jlink") {
+          group = "build"
+          description = "Generate the JRE based on JLink"
+
+          doLast {
+            println("== jlink to create JRE for ${project.name}")
+            val buildDir = layout.buildDirectory.get().asFile
+            val jarLocation = "${project.name}-${version}.jar"
+            exec {
+              workingDir("${buildDir}/libs")
+              commandLine("jar", "xf", jarLocation)
+            }
+
+            val jdepsOutput = ByteArrayOutputStream()
+            exec {
+              workingDir("${buildDir}/libs")
+              standardOutput = jdepsOutput
+
+              val classpath = (file("${workingDir}/BOOT-INF/lib").listFiles() ?: arrayOf()).map {
+                it.toRelativeString(workingDir)
+              }.joinToString(File.pathSeparator)
+
+              commandLine(
+                "jdeps",
+                "--ignore-missing-deps",
+                "--recursive",
+                "--print-module-deps",
+                "--multi-release",
+                java.sourceCompatibility.majorVersion,
+                "--class-path",
+                classpath,
+                jarLocation
+              )
+            }
+
+            file("${buildDir}/libs/app-jre").deleteRecursively()
+
+            val jdeps =
+              jdepsOutput.toString().split(",").filter { !it.startsWith("org.graalvm") }.joinToString(",")
+            exec {
+              workingDir("${buildDir}/libs")
+              commandLine(
+                "jlink",
+                "--add-modules",
+                jdeps,
+                "--strip-debug",
+                "--no-header-files",
+                "--no-man-pages",
+                "--output",
+                "app-jre",
+              )
+            }
+          }
+        }
+        finalizedBy(jlinkTask)
+      }
+    }
   }
-
-  if (plugins.hasPlugin(SpringBootPlugin::class)) {
-    apply<ApplicationPlugin>()
-  }
-
-
 }
 
 tasks.register<JacocoReport>("codeCoverageReport") {
@@ -156,86 +226,3 @@ tasks.register<JacocoReport>("codeCoverageReport") {
     html.required.set(true)
   }
 }
-
-
-// Plugins
-
-class LibraryPlugin : Plugin<Project> {
-  override fun apply(project: Project) {
-
-  }
-}
-
-class ApplicationPlugin : Plugin<Project> {
-  override fun apply(project: Project) {
-    extensions.configure<SpringBootExtension> {
-      buildInfo()
-    }
-
-    extensions.configure<GraalVMExtension> {
-      binaries.all {
-        // Windows: Fix unknown error for: `Error: Classes that should be initialized at run time got initialized during image building`
-        buildArgs.add("--initialize-at-build-time=org.apache.catalina.connector.RequestFacade,org.apache.catalina.connector.ResponseFacade")
-      }
-    }
-
-    tasks.withType<BootJar> {
-      val jlinkTask = tasks.register("jlink") {
-        group = "build"
-        description = "Generate the JRE based on JLink"
-
-        doLast {
-          println("== jlink to create JRE for ${project.name}")
-          val buildDir = layout.buildDirectory.get().asFile
-          val jarLocation = "${project.name}-${version}.jar"
-          exec {
-            workingDir("${buildDir}/libs")
-            commandLine("jar", "xf", jarLocation)
-          }
-
-          val jdepsOutput = ByteArrayOutputStream()
-          exec {
-            workingDir("${buildDir}/libs")
-            standardOutput = jdepsOutput
-
-            val classpath = (file("${workingDir}/BOOT-INF/lib").listFiles() ?: arrayOf()).map {
-              it.toRelativeString(workingDir)
-            }.joinToString(File.pathSeparator)
-
-            commandLine(
-              "jdeps",
-              "--ignore-missing-deps",
-              "--recursive",
-              "--print-module-deps",
-              "--multi-release",
-              java.sourceCompatibility.majorVersion,
-              "--class-path",
-              classpath,
-              jarLocation
-            )
-          }
-
-          file("${buildDir}/libs/app-jre").deleteRecursively()
-
-          val jdeps =
-            jdepsOutput.toString().split(",").filter { !it.startsWith("org.graalvm") }.joinToString(",")
-          exec {
-            workingDir("${buildDir}/libs")
-            commandLine(
-              "jlink",
-              "--add-modules",
-              jdeps,
-              "--strip-debug",
-              "--no-header-files",
-              "--no-man-pages",
-              "--output",
-              "app-jre",
-            )
-          }
-        }
-      }
-      finalizedBy(jlinkTask)
-    }
-  }
-}
-

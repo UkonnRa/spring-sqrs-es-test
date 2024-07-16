@@ -10,5 +10,5 @@ public sealed interface UserEvent extends Event {
 
   record Updated(UUID id, int version, String loginName, String displayName) implements UserEvent {}
 
-  record Deleted(UUID id, int version, Instant deactivatedDate) implements UserEvent {}
+  record Deleted(UUID id, int version, Instant deletedDate) implements UserEvent {}
 }

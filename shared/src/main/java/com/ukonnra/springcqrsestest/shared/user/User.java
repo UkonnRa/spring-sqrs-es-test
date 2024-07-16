@@ -1,44 +1,28 @@
 package com.ukonnra.springcqrsestest.shared.user;
 
 import com.ukonnra.springcqrsestest.shared.AbstractAggregate;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Index;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.Size;
-import java.time.Instant;
-
+import java.util.Collection;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.lang.Nullable;
 
 @Getter
 @NoArgsConstructor
 @ToString(callSuper = true)
-@Entity
-@Table(
-    name = User.TYPE,
-    indexes = {
-      @Index(columnList = "displayName"),
-      @Index(columnList = "active"),
-    })
+@EqualsAndHashCode(callSuper = true)
 public class User extends AbstractAggregate<UserEvent> {
   public static final String TYPE = "users";
 
-  @Column(nullable = false, unique = true, length = MAX_NAMELY)
   @Size(min = MIN_NAMELY, max = MAX_NAMELY)
   private String loginName;
 
-  @Column(nullable = false, length = MAX_NAMELY)
   @Size(min = MIN_NAMELY, max = MAX_NAMELY)
   private String displayName;
 
-  private @Nullable Instant deactivatedDate = null;
-
-  public User(String loginName, String displayName) {
-    this.loginName = loginName;
-    this.displayName = displayName;
+  public User(Collection<UserEvent> events) {
+    super(events);
   }
 
   public void setLoginName(String value) {
@@ -61,18 +45,8 @@ public class User extends AbstractAggregate<UserEvent> {
     this.displayName = trimmed;
   }
 
-  public void delete(final Instant timestamp) {
-    if (this.deactivatedDate == null) {
-      this.deactivatedDate = timestamp;
-    }
-  }
-
-  public void delete() {
-    this.delete(Instant.now());
-  }
-
   @Override
-  public final void handleEvent(UserEvent event) {
+  public final void doHandleEvent(UserEvent event) {
     switch (event) {
       case UserEvent.Created created -> {
         this.setId(created.id());
@@ -89,7 +63,7 @@ public class User extends AbstractAggregate<UserEvent> {
         }
       }
       case UserEvent.Deleted deleted -> {
-        this.delete(deleted.deactivatedDate());
+        this.delete(deleted.deletedDate());
       }
     }
   }
