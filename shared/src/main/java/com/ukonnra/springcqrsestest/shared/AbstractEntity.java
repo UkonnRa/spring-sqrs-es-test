@@ -19,7 +19,7 @@ import org.springframework.lang.Nullable;
 @Setter
 @ToString
 @EqualsAndHashCode
-public abstract class AbstractAggregate<E extends Event> implements Entity {
+public abstract class AbstractEntity<V extends Event> implements Entity {
   public static final int MIN_NAMELY = 2;
   public static final int MAX_NAMELY = 127;
   public static final int MAX_LONG_TEXT = 1023;
@@ -43,11 +43,11 @@ public abstract class AbstractAggregate<E extends Event> implements Entity {
     this.delete(Instant.now());
   }
 
-  public final void handleEvents(final Collection<E> events) {
+  public final void handleEvents(final Collection<V> events) {
     events.stream().sorted(Comparator.comparing(Event::version)).forEachOrdered(this::handleEvent);
   }
 
-  public final void handleEvent(final E event) {
+  public final void handleEvent(final V event) {
     if (event.version() == this.version + 1) {
       this.doHandleEvent(event);
       this.version = event.version();
@@ -57,5 +57,5 @@ public abstract class AbstractAggregate<E extends Event> implements Entity {
     }
   }
 
-  protected abstract void doHandleEvent(final E event);
+  protected abstract void doHandleEvent(final V event);
 }

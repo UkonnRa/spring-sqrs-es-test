@@ -20,6 +20,7 @@
     "postinstall": "husky",
     "lint:fix": "./gradlew spotlessApply",
     "lint": "./gradlew check",
+    "test": "./gradlew test",
     "upgrade": "yarn upgrade-interactive && rimraf '.yarn/cache' 'node_modules/' 'yarn.lock' && yarn && yarn upgrade:java",
     "upgrade:java": "./gradlew dependencyUpdates"
   },

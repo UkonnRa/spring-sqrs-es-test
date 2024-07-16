@@ -5,5 +5,7 @@ plugins {
 dependencies {
   implementation(project(":shared"))
 
-  api("org.springframework.data:spring-data-jpa")
+  api("org.springframework.boot:spring-boot-starter-data-jpa")
+
+  testImplementation("com.h2database:h2")
 }

@@ -5,7 +5,7 @@ import java.util.Set;
 import org.springframework.lang.Nullable;
 
 public interface WriteService<
-        A extends AbstractAggregate<?>,
+        A extends AbstractEntity<?>,
         C extends Command,
         Q extends Query,
         P extends Presentation,

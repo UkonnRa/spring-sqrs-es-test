@@ -1,6 +1,6 @@
 package com.ukonnra.springcqrsestest.shared.user;
 
-import com.ukonnra.springcqrsestest.shared.AbstractAggregate;
+import com.ukonnra.springcqrsestest.shared.AbstractEntity;
 import com.ukonnra.springcqrsestest.shared.Event;
 import com.ukonnra.springcqrsestest.shared.WriteService;
 import java.time.Instant;
@@ -47,7 +47,7 @@ public interface UserService
     final var ids = commands.stream().map(UserCommand.Update::id).collect(Collectors.toSet());
     final var models =
         this.getRepository().findAllByIds(ids).stream()
-            .collect(Collectors.toMap(AbstractAggregate::getId, Function.identity()));
+            .collect(Collectors.toMap(AbstractEntity::getId, Function.identity()));
     return commands.stream()
         .map(
             command -> {

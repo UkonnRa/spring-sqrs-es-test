@@ -1,6 +1,6 @@
 package com.ukonnra.springcqrsestest.shared.user;
 
-import com.ukonnra.springcqrsestest.shared.AbstractAggregate;
+import com.ukonnra.springcqrsestest.shared.AbstractEntity;
 import com.ukonnra.springcqrsestest.shared.Presentation;
 import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
@@ -12,7 +12,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class User extends AbstractAggregate<UserEvent> implements Presentation {
+public class User extends AbstractEntity<UserEvent> implements Presentation {
   public static final String TYPE = "users";
 
   @Size(min = MIN_NAMELY, max = MAX_NAMELY)

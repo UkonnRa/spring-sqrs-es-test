@@ -9,7 +9,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(readOnly = true)
-public interface AggregateRepository<A extends AbstractAggregate<?>, Q extends Query> {
+public interface AggregateRepository<A extends AbstractEntity<?>, Q extends Query> {
   List<A> findAll(final Q query, @Nullable final Integer size);
 
   List<A> findAllByIds(final Collection<UUID> ids);
