@@ -62,10 +62,6 @@ subprojects {
     }
   }
 
-  dependencies {
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-  }
-
   checkstyle {
     toolVersion = "10.17.0"
   }

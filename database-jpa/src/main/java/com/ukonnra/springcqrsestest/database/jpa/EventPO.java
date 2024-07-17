@@ -16,6 +16,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.lang.Nullable;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -43,16 +44,28 @@ public class EventPO {
     this.blobValue = objectMapper.writeValueAsString(serde);
   }
 
-  public <E extends Event> E convert(final ObjectMapper objectMapper, final Class<E> clazz)
-      throws JsonProcessingException {
-    final var map =
-        objectMapper.readValue(this.blobValue, new TypeReference<Map<String, Object>>() {});
-    map.putAll(
-        Map.of(
-            "aggregateType", this.id.aggregateType, "id", this.id.id, "version", this.id.version));
-    return objectMapper.convertValue(map, clazz);
+  public <E extends Event> @Nullable E convert(
+      final ObjectMapper objectMapper, final Class<E> clazz) {
+    try {
+      final var map =
+          objectMapper.readValue(this.blobValue, new TypeReference<Map<String, Object>>() {});
+      map.putAll(
+          Map.of(
+              "aggregateType",
+              this.id.aggregateType,
+              "id",
+              this.id.id,
+              "version",
+              this.id.version));
+      return objectMapper.convertValue(map, clazz);
+    } catch (final JsonProcessingException e) {
+      return null;
+    }
   }
 
   @Embeddable
-  public record Id(String aggregateType, UUID id, int version) {}
+  public record Id(
+      @Column(nullable = false) String aggregateType,
+      @Column(nullable = false) UUID id,
+      @Column(nullable = false) int version) {}
 }

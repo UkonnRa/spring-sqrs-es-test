@@ -2,6 +2,7 @@ package com.ukonnra.springcqrsestest.shared.user;
 
 import com.ukonnra.springcqrsestest.shared.AbstractEntity;
 import com.ukonnra.springcqrsestest.shared.Event;
+import com.ukonnra.springcqrsestest.shared.EventRepository;
 import com.ukonnra.springcqrsestest.shared.WriteService;
 import java.time.Instant;
 import java.util.Collection;
@@ -12,11 +13,15 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Service;
 
 public interface UserService
-    extends WriteService<User, UserCommand, UserQuery, User, UserRepository> {
+    extends WriteService<User, UserCommand, UserEvent, UserQuery, User, UserRepository> {
   @Override
-  default Set<Event> doHandleCommand(final User user, final UserCommand command) {
+  default Set<Event> doHandleCommand(@Nullable final User user, final UserCommand command) {
     return switch (command) {
       case UserCommand.Batch batch -> this.batch(user, batch);
       case UserCommand.Create create -> this.create(user, Set.of(create));
@@ -30,7 +35,7 @@ public interface UserService
     return new HashSet<>(entities);
   }
 
-  private Set<Event> create(final User user, final Set<UserCommand.Create> commands) {
+  private Set<Event> create(@Nullable final User user, final Set<UserCommand.Create> commands) {
     return commands.stream()
         .map(
             command ->
@@ -43,7 +48,7 @@ public interface UserService
         .collect(Collectors.toSet());
   }
 
-  private Set<Event> update(final User user, final Set<UserCommand.Update> commands) {
+  private Set<Event> update(@Nullable final User user, final Set<UserCommand.Update> commands) {
     final var ids = commands.stream().map(UserCommand.Update::id).collect(Collectors.toSet());
     final var models =
         this.getRepository().findAllByIds(ids).stream()
@@ -64,23 +69,32 @@ public interface UserService
         .collect(Collectors.toSet());
   }
 
-  private Set<Event> delete(final User user, final Collection<UserCommand.Delete> commands) {
+  private Set<Event> delete(
+      @Nullable final User user, final Collection<UserCommand.Delete> commands) {
     return this.deleteByIds(user, commands.stream().map(c -> c.id()).collect(Collectors.toSet()));
   }
 
-  private Set<Event> deleteByIds(final User user, final Collection<UUID> ids) {
+  private Set<Event> deleteByIds(@Nullable final User user, final Collection<UUID> ids) {
     final var models = this.getRepository().findAllByIds(ids);
     return models.stream()
         .map(model -> new UserEvent.Deleted(model.getId(), model.getVersion() + 1, Instant.now()))
         .collect(Collectors.toSet());
   }
 
-  private Set<Event> batch(final User user, final UserCommand.Batch command) {
+  private Set<Event> batch(@Nullable final User user, final UserCommand.Batch command) {
     return Stream.of(
             this.create(user, command.create()),
             this.update(user, command.update()),
             this.deleteByIds(user, command.delete()))
         .flatMap(Set::stream)
         .collect(Collectors.toSet());
+  }
+
+  @Service
+  @AllArgsConstructor
+  @Getter
+  class Impl implements UserService {
+    private final EventRepository eventRepository;
+    private final UserRepository repository;
   }
 }

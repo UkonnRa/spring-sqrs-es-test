@@ -2,13 +2,29 @@ package com.ukonnra.springcqrsestest.shared;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Service;
 
+@Service
 public interface EventRepository {
-  <E extends Event> List<E> findAll(
-      final String aggregateType, final Set<UUID> id, @Nullable final Integer startVersion);
+  Logger LOG = LoggerFactory.getLogger(EventRepository.class);
 
-  void saveAll(final Collection<Event> events);
+  <E extends Event> List<E> findAll(
+      final String aggregateType,
+      @Nullable final Collection<UUID> id,
+      @Nullable final Integer startVersion,
+      Class<E> eventClass);
+
+  default <E extends Event> List<E> findAll(final String aggregateType, Class<E> eventClass) {
+    return this.findAll(aggregateType, null, null, eventClass);
+  }
+
+  void doSaveAll(final Collection<Event> events);
+
+  default void saveAll(final Collection<Event> events) {
+    this.doSaveAll(events);
+  }
 }
