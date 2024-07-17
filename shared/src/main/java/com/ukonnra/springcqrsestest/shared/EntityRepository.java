@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 public interface EntityRepository<E extends AbstractEntity<V>, Q extends Query, V extends Event> {
   Logger LOG = LoggerFactory.getLogger(EntityRepository.class);
 
@@ -29,27 +28,6 @@ public interface EntityRepository<E extends AbstractEntity<V>, Q extends Query, 
   Set<E> findAll(@Nullable final Q query, @Nullable final Integer size);
 
   Set<E> findAllByIds(final Collection<UUID> ids);
-
-  //  default Set<E> findAll(@Nullable final Q query, @Nullable final Integer size) {
-  //    final var events =
-  //        this.getEventRepository().findAll(this.getAggregateType(), this.getEventClass());
-  //    final var entities = this.doFindAll(query, size);
-  //    return this.aggregateEntitiesAndEvents(entities, events);
-  //  }
-  //
-  //  default Set<E> findAllByIds(final Collection<UUID> ids) {
-  //    if (ids.isEmpty()) {
-  //      return Set.of();
-  //    }
-  //
-  //    final var entities = this.doFindAllByIds(ids);
-  //    final var events =
-  //        this.getEventRepository().findAll(this.getAggregateType(), ids, null,
-  // this.getEventClass());
-  //
-  //    return this.aggregateEntitiesAndEvents(entities, events);
-  //  }
-  //
 
   default Optional<E> findOne(final Q query) {
     return this.findAll(query, 1).stream().findFirst();
@@ -70,12 +48,7 @@ public interface EntityRepository<E extends AbstractEntity<V>, Q extends Query, 
   // For snapshots
   void saveAll(final Collection<E> entities);
 
-  void deleteAll(@Nullable Collection<UUID> ids);
-
-  default void deleteAll() {
-    this.deleteAll(null);
-  }
-
+  @Transactional
   default void refreshSnapshots(@Nullable Collection<UUID> ids) {
     if (ids != null && ids.isEmpty()) {
       return;
@@ -113,7 +86,6 @@ public interface EntityRepository<E extends AbstractEntity<V>, Q extends Query, 
       results.add(entity);
     }
 
-    this.deleteAll(allIds);
     this.saveAll(results);
   }
 }

@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@Import({SharedConfiguration.class})
+@Import(SharedConfiguration.class)
 @EntityScan(basePackageClasses = {EventPO.class, UserPO.class})
 @EnableJpaRepositories
 @ComponentScan(basePackageClasses = DatabaseJpaConfiguration.class)

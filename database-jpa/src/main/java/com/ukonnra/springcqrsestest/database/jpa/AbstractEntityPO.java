@@ -6,7 +6,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Transient;
-import jakarta.persistence.Version;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
 import java.util.Objects;
@@ -29,7 +28,6 @@ public abstract class AbstractEntityPO<E extends AbstractEntity<?>> {
   @CreatedDate private Instant createdDate;
 
   @Column(nullable = false)
-  @Version
   private int version;
 
   private @Nullable Instant deletedDate = null;

@@ -27,10 +27,14 @@ public class UserPO extends AbstractEntityPO<User> {
   @Column(nullable = false)
   private String displayName;
 
+  @Column(nullable = false)
+  private boolean systemAdmin;
+
   public UserPO(final User user) {
     super(user);
     this.loginName = user.getLoginName();
     this.displayName = user.getDisplayName();
+    this.systemAdmin = user.getSystemAdmin();
   }
 
   @Override
@@ -44,6 +48,7 @@ public class UserPO extends AbstractEntityPO<User> {
     if (entity != null) {
       entity.setLoginName(this.loginName);
       entity.setDisplayName(this.displayName);
+      entity.setSystemAdmin(this.systemAdmin);
     }
     return entity;
   }

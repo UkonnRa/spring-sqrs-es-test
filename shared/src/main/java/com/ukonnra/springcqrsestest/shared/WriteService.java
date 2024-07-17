@@ -4,6 +4,7 @@ import com.ukonnra.springcqrsestest.shared.user.User;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.lang.Nullable;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface WriteService<
         E extends AbstractEntity<V>,
@@ -19,6 +20,7 @@ public interface WriteService<
 
   Set<Event> doHandleCommand(@Nullable final User user, final C command);
 
+  @Transactional
   default void handleCommand(@Nullable final User user, final C command) {
     final var events = this.doHandleCommand(user, command);
     this.getEventRepository().saveAll(events);
@@ -30,6 +32,6 @@ public interface WriteService<
   @Override
   default Set<P> findAll(@Nullable final User operator, final Q query, @Nullable Integer size) {
     final var entities = this.getRepository().findAll(query, size);
-    return this.convert(entities);
+    return this.convert(operator, entities);
   }
 }

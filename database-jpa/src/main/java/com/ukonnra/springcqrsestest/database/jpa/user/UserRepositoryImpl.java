@@ -26,18 +26,15 @@ public class UserRepositoryImpl implements UserRepository {
   public Set<User> findAll(@Nullable UserQuery query, @Nullable Integer size) {
     final List<UserPO> pos;
 
-    final var specification = query == null ? null : new UserSpecification(query);
+    final var specification = new UserSpecification(query);
     final var page = size != null && size >= 0 ? Pageable.ofSize(size) : null;
 
-    if (specification != null && page != null) {
+    if (page != null) {
       pos = this.userPORepository.findAll(specification, page).getContent();
-    } else if (specification != null) {
-      pos = this.userPORepository.findAll(specification);
-    } else if (page != null) {
-      pos = this.userPORepository.findAll(page).getContent();
     } else {
-      pos = this.userPORepository.findAll();
+      pos = this.userPORepository.findAll(specification);
     }
+
     return pos.stream().map(UserPO::convertToEntity).collect(Collectors.toSet());
   }
 
@@ -52,14 +49,5 @@ public class UserRepositoryImpl implements UserRepository {
   public void saveAll(Collection<User> entities) {
     final var pos = entities.stream().map(UserPO::new).collect(Collectors.toSet());
     this.userPORepository.saveAllAndFlush(pos);
-  }
-
-  @Override
-  public void deleteAll(@Nullable Collection<UUID> ids) {
-    if (ids == null) {
-      this.userPORepository.deleteAllInBatch();
-    } else {
-      this.userPORepository.deleteAllByIdInBatch(ids);
-    }
   }
 }

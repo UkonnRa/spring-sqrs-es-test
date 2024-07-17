@@ -7,11 +7,13 @@ import com.ukonnra.springcqrsestest.testsuite.UserTestClient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ContextConfiguration;
 
 @Getter
 @AllArgsConstructor(onConstructor = @__(@Autowired))
-@SpringBootTest(classes = DatabaseJpaTestConfiguration.class)
+@DataJpaTest
+@ContextConfiguration(classes = DatabaseJpaTestConfiguration.class)
 class DatabaseJpaUserTest implements UserTest {
   private final EventRepository eventRepository;
   private final UserTestClient.Impl userTestClient;

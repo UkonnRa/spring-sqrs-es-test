@@ -7,7 +7,7 @@ import java.util.Set;
 import org.springframework.lang.Nullable;
 
 public interface ReadService<E extends Entity, Q extends Query, P extends Presentation> {
-  Set<P> convert(final Collection<E> entities);
+  Set<P> convert(@Nullable final User operator, final Collection<E> entities);
 
   Set<P> findAll(@Nullable final User operator, final Q query, @Nullable Integer size);
 

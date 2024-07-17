@@ -5,8 +5,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.Builder;
 import org.springframework.lang.Nullable;
 
+@Builder
 public record UserQuery(Set<UUID> id, Set<String> loginName, String fullText) implements Query {
   public UserQuery(
       @Nullable final Set<UUID> id,

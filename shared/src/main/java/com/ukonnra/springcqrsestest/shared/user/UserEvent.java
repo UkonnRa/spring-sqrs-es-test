@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.ukonnra.springcqrsestest.shared.Event;
 import java.time.Instant;
 import java.util.UUID;
+import org.springframework.lang.Nullable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "@type")
 @JsonSubTypes({
@@ -18,10 +19,28 @@ public sealed interface UserEvent extends Event {
     return User.TYPE;
   }
 
-  record Created(UUID id, int version, Instant createdDate, String loginName, String displayName)
-      implements UserEvent {}
+  record Created(
+      UUID id,
+      int version,
+      Instant createdDate,
+      String loginName,
+      String displayName,
+      boolean systemAdmin)
+      implements UserEvent {
+    public Created(final UserCommand.Create command) {
+      this(
+          UUID.randomUUID(),
+          0,
+          Instant.now(),
+          command.loginName(),
+          command.displayName(),
+          command.systemAdmin());
+    }
+  }
 
-  record Updated(UUID id, int version, String loginName, String displayName) implements UserEvent {}
+  record Updated(
+      UUID id, int version, String loginName, String displayName, @Nullable Boolean systemAdmin)
+      implements UserEvent {}
 
   record Deleted(UUID id, int version, Instant deletedDate) implements UserEvent {}
 }
