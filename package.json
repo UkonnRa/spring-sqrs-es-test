@@ -21,6 +21,7 @@
     "lint:fix": "./gradlew spotlessApply",
     "lint": "./gradlew check",
     "test": "./gradlew test",
+    "test:coverage": "./gradlew testCodeCoverageReport",
     "upgrade": "yarn upgrade-interactive && rimraf '.yarn/cache' 'node_modules/' 'yarn.lock' && yarn && yarn upgrade:java",
     "upgrade:java": "./gradlew dependencyUpdates"
   },

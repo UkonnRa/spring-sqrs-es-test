@@ -6,10 +6,10 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 import java.io.ByteArrayOutputStream
 
 plugins {
-  id("java")
-  id("idea")
-  id("checkstyle")
-  id("jacoco")
+  java
+  idea
+  checkstyle
+  `jacoco-report-aggregation`
 
   id("com.github.spotbugs") version "6.0.19"
   id("com.diffplug.spotless") version "6.25.0"
@@ -26,15 +26,7 @@ group = "com.ukonnra"
 
 java {
   toolchain {
-    languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_21.majorVersion)
-  }
-}
-
-allprojects {
-  version = "0.1.0"
-
-  repositories {
-    mavenCentral()
+    languageVersion = JavaLanguageVersion.of("21")
   }
 }
 
@@ -42,25 +34,32 @@ tasks.wrapper {
   distributionType = Wrapper.DistributionType.ALL
 }
 
-subprojects {
-  apply(plugin = "java")
-  apply(plugin = "idea")
-  apply(plugin = "checkstyle")
-  apply(plugin = "jacoco")
-  apply(plugin = "jacoco-report-aggregation")
-
-  apply(plugin = "com.github.spotbugs")
-  apply(plugin = "com.diffplug.spotless")
-  apply(plugin = "io.freefair.lombok")
-  apply(plugin = "org.sonarqube")
-
+allprojects {
   apply(plugin = "io.spring.dependency-management")
+
+  version = "0.1.0"
+
+  repositories {
+    mavenCentral()
+  }
 
   dependencyManagement {
     imports {
       mavenBom(SpringBootPlugin.BOM_COORDINATES)
     }
   }
+}
+
+subprojects {
+  apply(plugin = "java")
+  apply(plugin = "idea")
+  apply(plugin = "checkstyle")
+  apply(plugin = "jacoco")
+
+  apply(plugin = "com.github.spotbugs")
+  apply(plugin = "com.diffplug.spotless")
+  apply(plugin = "io.freefair.lombok")
+  apply(plugin = "org.sonarqube")
 
   checkstyle {
     toolVersion = "10.17.0"
@@ -199,26 +198,10 @@ subprojects {
   }
 }
 
-tasks.register<JacocoReport>("codeCoverageReport") {
-  subprojects {
-    plugins.withType<JacocoPlugin>().configureEach {
-      this@subprojects.tasks.matching { it.extensions.findByType<JacocoTaskExtension>() != null }.configureEach {
-        if (extensions.getByType<JacocoTaskExtension>().isEnabled) {
-          sourceSets(this@subprojects.sourceSets.main.get())
-          executionData(this)
-        } else {
-          logger.warn("Jacoco extension is disabled for test task \'${name}\' in project \'${this@subprojects.name}\'. this test task will be excluded from jacoco report.")
-        }
-      }
+// Jacoco Aggregation Settings
 
-      this@subprojects.tasks.matching { it.extensions.findByType<JacocoTaskExtension>() != null }.forEach {
-        this@register.dependsOn(it)
-      }
-    }
-  }
-
-  reports {
-    xml.required.set(true)
-    html.required.set(true)
+dependencies {
+  subprojects.map { subproject ->
+    jacocoAggregation(subproject)
   }
 }

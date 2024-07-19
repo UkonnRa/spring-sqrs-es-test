@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd"
+  objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+  <changeSet id="1721445613030-1" author="ukonn">
+    <createTable tableName="events">
+      <column name="blob_value" type="CLOB">
+        <constraints nullable="false"/>
+      </column>
+      <column name="aggregate_type" type="VARCHAR(31)">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_events"/>
+      </column>
+      <column name="id" type="UUID">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_events"/>
+      </column>
+      <column name="version" type="INT">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_events"/>
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet id="1721445613030-2" author="ukonn">
+    <createTable tableName="journal_tags">
+      <column name="journals_id" type="UUID">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tag" type="VARCHAR(15)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet id="1721445613030-3" author="ukonn">
+    <createTable tableName="journal_users">
+      <column name="admin" type="BOOLEAN">
+        <constraints nullable="false"/>
+      </column>
+      <column name="journal_id" type="UUID">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_journal_users"/>
+      </column>
+      <column name="user_id" type="UUID">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_journal_users"/>
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet id="1721445613030-4" author="ukonn">
+    <createTable tableName="journals">
+      <column name="id" type="UUID">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_journals"/>
+      </column>
+      <column name="created_date" type="DATETIME"/>
+      <column name="version" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="deleted_date" type="DATETIME"/>
+      <column name="name" type="VARCHAR(127)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet id="1721445613030-5" author="ukonn">
+    <createTable tableName="users">
+      <column name="id" type="UUID">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="pk_users"/>
+      </column>
+      <column name="created_date" type="DATETIME"/>
+      <column name="version" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="deleted_date" type="DATETIME"/>
+      <column name="login_name" type="VARCHAR(127)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="display_name" type="VARCHAR(127)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="system_admin" type="BOOLEAN">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet id="1721445613030-6" author="ukonn">
+    <createIndex indexName="idx_079272d038b31d3a5c771d47b" tableName="journals">
+      <column name="name"/>
+    </createIndex>
+  </changeSet>
+  <changeSet id="1721445613030-7" author="ukonn">
+    <createIndex indexName="idx_3d079b1aa7de9cdaecadf0d69" tableName="events">
+      <column name="id"/>
+    </createIndex>
+  </changeSet>
+  <changeSet id="1721445613030-8" author="ukonn">
+    <createIndex indexName="idx_498490a16cea869d8236ff327" tableName="users">
+      <column name="system_admin"/>
+    </createIndex>
+  </changeSet>
+  <changeSet id="1721445613030-9" author="ukonn">
+    <createIndex indexName="idx_52bdf2879e922dcc7e86b0981" tableName="users">
+      <column name="deleted_date"/>
+    </createIndex>
+  </changeSet>
+  <changeSet id="1721445613030-10" author="ukonn">
+    <createIndex indexName="idx_740f9123268f8a81360ba69b4" tableName="events">
+      <column name="aggregate_type"/>
+      <column name="id"/>
+    </createIndex>
+  </changeSet>
+  <changeSet id="1721445613030-11" author="ukonn">
+    <createIndex indexName="idx_a62ece6afbaabb0c94b9ac056" tableName="users">
+      <column name="display_name"/>
+    </createIndex>
+  </changeSet>
+  <changeSet id="1721445613030-12" author="ukonn">
+    <createIndex indexName="idx_d738abe013b2e6df2957c291a" tableName="journals">
+      <column name="deleted_date"/>
+    </createIndex>
+  </changeSet>
+  <changeSet id="1721445613030-13" author="ukonn">
+    <createIndex indexName="idx_fb019a385c523f3ff6c25e058" tableName="users" unique="true">
+      <column name="login_name"/>
+    </createIndex>
+  </changeSet>
+  <changeSet id="1721445613030-14" author="ukonn">
+    <addForeignKeyConstraint baseColumnNames="journal_id" baseTableName="journal_users"
+                             constraintName="FK_JOURNAL_USERS_ON_JOURNAL" referencedColumnNames="id"
+                             referencedTableName="journals"/>
+  </changeSet>
+  <changeSet id="1721445613030-15" author="ukonn">
+    <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="journal_users"
+                             constraintName="FK_JOURNAL_USERS_ON_USER" referencedColumnNames="id"
+                             referencedTableName="users"/>
+  </changeSet>
+  <changeSet id="1721445613030-16" author="ukonn">
+    <addForeignKeyConstraint baseColumnNames="journals_id" baseTableName="journal_tags"
+                             constraintName="fk_journal_tags_on_journal_p_o" referencedColumnNames="id"
+                             referencedTableName="journals"/>
+  </changeSet>
+
+</databaseChangeLog>

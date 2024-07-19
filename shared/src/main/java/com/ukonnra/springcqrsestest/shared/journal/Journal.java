@@ -20,6 +20,11 @@ import org.springframework.lang.Nullable;
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 public class Journal extends AbstractEntity<JournalEvent> {
+  public static final String FIELD_NAME = "name";
+  public static final String FIELD_ADMINS = "admins";
+  public static final String FIELD_MEMBERS = "members";
+  public static final String FIELD_TAGS = "tags";
+
   public static final int MIN_ADMINS = 1;
   public static final int MAX_ADMINS = 7;
   public static final int MAX_MEMBERS = 15;
@@ -34,6 +39,9 @@ public class Journal extends AbstractEntity<JournalEvent> {
 
   @Size(max = MAX_MEMBERS)
   private Set<UUID> members = new HashSet<>();
+
+  @Size(max = MAX_TAGS)
+  private Set<@Size(min = MIN_NAMELY, max = MAX_NAMELY) String> tags = new HashSet<>();
 
   public void setName(final String name) {
     final var trimmed = name.trim();
@@ -67,6 +75,29 @@ public class Journal extends AbstractEntity<JournalEvent> {
     this.members = values;
   }
 
+  public void setTags(final Collection<String> tags) {
+    final var values = new HashSet<String>();
+    for (final String tag : tags) {
+      final var trimmed = tag.trim();
+      if (trimmed.isEmpty()) {
+        continue;
+      }
+
+      if (trimmed.length() > MAX_NAMELY || trimmed.length() < MIN_NAMELY) {
+        // todo: standard error system
+        throw new UnsupportedOperationException("Invalid tag: " + tag);
+      }
+      values.add(trimmed);
+    }
+
+    if (values.size() > MAX_TAGS) {
+      // todo: standard error system
+      throw new UnsupportedOperationException("Invalid tags: " + tags);
+    }
+
+    this.tags = values;
+  }
+
   @Override
   protected void doHandleEvent(JournalEvent event) {
     switch (event) {
@@ -76,6 +107,7 @@ public class Journal extends AbstractEntity<JournalEvent> {
         this.setName(created.name());
         this.setAdmins(created.admins());
         this.setMembers(created.members());
+        this.setTags(created.tags());
       }
       case JournalEvent.Updated updated -> {
         if (!updated.admins().isEmpty()) {
@@ -84,6 +116,10 @@ public class Journal extends AbstractEntity<JournalEvent> {
 
         if (updated.members() != null) {
           this.setMembers(updated.members());
+        }
+
+        if (updated.tags() != null) {
+          this.setTags(updated.tags());
         }
       }
       case JournalEvent.Deleted deleted -> this.delete(deleted.deletedDate());

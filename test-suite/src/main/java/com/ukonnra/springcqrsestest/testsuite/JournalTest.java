@@ -44,13 +44,33 @@ public interface JournalTest {
     this.getUserRepository().refreshSnapshots(Set.of(normalId));
 
     final var journalCommand =
-        new JournalCommand.Create("New Journal with Admin " + normalId, Set.of(normalId), Set.of());
+        new JournalCommand.Create(
+            "New Journal with Admin " + normalId,
+            Set.of(normalId),
+            Set.of(),
+            Set.of("Tag 1", "Tag 2", "", "  ", "  Tag 3  "));
     this.getJournalTestClient().handleCommand(normalId, journalCommand);
 
     final var journalsWithAdmin =
         this.getJournalTestClient()
             .findAll(normalId, JournalQuery.builder().adminId(Set.of(normalId)).build(), null);
     Assertions.assertEquals(1, journalsWithAdmin.size());
+    Assertions.assertEquals(
+        Set.of("Tag 1", "Tag 2", "Tag 3"),
+        journalsWithAdmin.stream().findFirst().orElseThrow().tags());
+
+    final var journalsWithTag =
+        this.getJournalTestClient()
+            .findAll(
+                normalId,
+                JournalQuery.builder().tag(Set.of("tag 1")).fullText("Journal").build(),
+                null);
+    Assertions.assertEquals(journalsWithAdmin, journalsWithTag);
+
+    final var journalsWithTag2 =
+        this.getJournalTestClient()
+            .findAll(normalId, JournalQuery.builder().tag(Set.of("tag")).build(), null);
+    Assertions.assertTrue(journalsWithTag2.isEmpty());
 
     final var journalsWithMember =
         this.getJournalTestClient()

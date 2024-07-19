@@ -33,12 +33,12 @@ public interface UserService
   }
 
   @Override
-  default Set<Event> doHandleCommand(@Nullable final User user, final UserCommand command) {
+  default Set<Event> doHandleCommand(@Nullable final User operator, final UserCommand command) {
     return switch (command) {
-      case UserCommand.Batch batch -> this.batch(user, batch);
-      case UserCommand.Create create -> this.create(user, Set.of(create));
-      case UserCommand.Delete delete -> this.delete(user, Set.of(delete));
-      case UserCommand.Update update -> this.update(user, Set.of(update));
+      case UserCommand.Batch batch -> this.batch(operator, batch);
+      case UserCommand.Create create -> this.create(operator, Set.of(create));
+      case UserCommand.Delete(UUID id) -> this.delete(operator, Set.of(id));
+      case UserCommand.Update update -> this.update(operator, Set.of(update));
     };
   }
 
@@ -128,13 +128,7 @@ public interface UserService
         .collect(Collectors.toSet());
   }
 
-  private Set<Event> delete(
-      @Nullable final User user, final Collection<UserCommand.Delete> commands) {
-    return this.deleteByIds(
-        user, commands.stream().map(UserCommand.Delete::id).collect(Collectors.toSet()));
-  }
-
-  private Set<Event> deleteByIds(@Nullable final User operator, final Collection<UUID> ids) {
+  private Set<Event> delete(@Nullable final User operator, final Collection<UUID> ids) {
     final var models = this.getRepository().findAllByIds(ids);
     final var now = Instant.now();
     return models.stream()
@@ -153,7 +147,7 @@ public interface UserService
     final var events = new HashSet<Event>();
 
     events.addAll(this.create(user, command.create()));
-    events.addAll(this.deleteByIds(user, command.delete()));
+    events.addAll(this.delete(user, command.delete()));
     events.addAll(
         this.update(
             user,

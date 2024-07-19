@@ -5,7 +5,9 @@ import com.ukonnra.springcqrsestest.database.jpa.user.UserPO;
 import com.ukonnra.springcqrsestest.shared.AbstractEntity;
 import com.ukonnra.springcqrsestest.shared.journal.Journal;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
@@ -43,6 +45,15 @@ public class JournalPO extends AbstractEntityPO<Journal> {
   @OneToMany(mappedBy = "journal", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   private Set<JournalUserPO> journalUsers = new HashSet<>();
 
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(
+      name = "journal_tags",
+      indexes = @Index(unique = true, columnList = "journal_id, tag"))
+  @Size(max = AbstractEntity.MAX_TAGS)
+  @Column(name = "tag", nullable = false, length = AbstractEntity.MAX_NAMELY)
+  private Set<@Size(min = AbstractEntity.MIN_NAMELY, max = AbstractEntity.MAX_NAMELY) String> tags =
+      new HashSet<>();
+
   public JournalPO(final Journal entity, final Map<UUID, UserPO> users) {
     super(entity);
     this.name = entity.getName();
@@ -60,6 +71,8 @@ public class JournalPO extends AbstractEntityPO<Journal> {
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
     this.setMembers(members);
+
+    this.tags = entity.getTags();
   }
 
   public Set<JournalUserPO> getAdmins() {
@@ -103,6 +116,7 @@ public class JournalPO extends AbstractEntityPO<Journal> {
       entity.setName(this.name);
       entity.setAdmins(this.getAdminIds());
       entity.setMembers(this.getMemberIds());
+      entity.setTags(this.getTags());
     }
 
     return entity;

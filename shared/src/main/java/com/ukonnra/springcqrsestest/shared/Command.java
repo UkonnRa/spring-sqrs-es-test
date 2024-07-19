@@ -1,3 +1,5 @@
 package com.ukonnra.springcqrsestest.shared;
 
-public interface Command {}
+import java.io.Serializable;
+
+public interface Command extends Serializable {}

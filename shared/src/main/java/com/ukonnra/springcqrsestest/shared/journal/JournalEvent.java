@@ -21,15 +21,33 @@ public sealed interface JournalEvent extends Event {
   }
 
   record Created(
-      UUID id, int version, Instant createdDate, String name, Set<UUID> admins, Set<UUID> members)
+      UUID id,
+      int version,
+      Instant createdDate,
+      String name,
+      Set<UUID> admins,
+      Set<UUID> members,
+      Set<String> tags)
       implements JournalEvent {
     public Created(final JournalCommand.Create command) {
       this(
-          UUID.randomUUID(), 0, Instant.now(), command.name(), command.admins(), command.members());
+          UUID.randomUUID(),
+          0,
+          Instant.now(),
+          command.name(),
+          command.admins(),
+          command.members(),
+          command.tags());
     }
   }
 
-  record Updated(UUID id, int version, String name, Set<UUID> admins, @Nullable Set<UUID> members)
+  record Updated(
+      UUID id,
+      int version,
+      String name,
+      Set<UUID> admins,
+      @Nullable Set<UUID> members,
+      @Nullable Set<String> tags)
       implements JournalEvent {}
 
   record Deleted(UUID id, int version, Instant deletedDate) implements JournalEvent {}

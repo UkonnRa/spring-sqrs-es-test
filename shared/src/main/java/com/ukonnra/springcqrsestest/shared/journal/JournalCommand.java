@@ -16,19 +16,27 @@ import org.springframework.lang.Nullable;
   @JsonSubTypes.Type(value = JournalCommand.Batch.class, name = "users:batch"),
 })
 public sealed interface JournalCommand extends Command {
-  record Create(String name, Set<UUID> admins, Set<UUID> members) implements JournalCommand {}
+  record Create(String name, Set<UUID> admins, Set<UUID> members, Set<String> tags)
+      implements JournalCommand {}
 
-  record Update(UUID id, String name, Set<UUID> admins, @Nullable Set<UUID> members)
+  record Update(
+      UUID id,
+      String name,
+      Set<UUID> admins,
+      @Nullable Set<UUID> members,
+      @Nullable Set<String> tags)
       implements JournalCommand {
     public Update(
         final UUID id,
         @Nullable String name,
         @Nullable Set<UUID> admins,
-        @Nullable Set<UUID> members) {
+        @Nullable Set<UUID> members,
+        @Nullable Set<String> tags) {
       this.id = id;
       this.name = Optional.ofNullable(name).map(String::trim).orElse("");
       this.admins = admins == null ? Set.of() : admins;
       this.members = members;
+      this.tags = tags;
     }
 
     public boolean empty() {

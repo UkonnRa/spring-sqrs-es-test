@@ -7,7 +7,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.UUID;
+import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.Nullable;
 
@@ -26,43 +26,39 @@ public record JournalSpecification(@Nullable JournalQuery value)
         predicates.add(root.get(JournalPO_.id).in(value.id()));
       }
 
-      if (!value.adminId().isEmpty()) {
-        var subquery = query.subquery(UUID.class);
-        final var subroot = subquery.from(JournalUserPO.class);
-        subquery =
-            subquery
-                .select(subroot.get(JournalUserPO_.journal).get(JournalPO_.id))
-                .distinct(true)
-                .where(
-                    builder.and(
-                        subroot.get(JournalUserPO_.user).get(UserPO_.id).in(value.adminId()),
-                        builder.isTrue(subroot.get(JournalUserPO_.admin)),
-                        builder.equal(
-                            root.get(JournalPO_.id),
-                            subroot.get(JournalUserPO_.journal).get(JournalPO_.id))));
-        predicates.add(builder.exists(subquery));
+      if (!value.adminId().isEmpty() || !value.memberId().isEmpty()) {
+        final var userRoot = root.join(JournalPO_.journalUsers);
+
+        if (!value.adminId().isEmpty()) {
+          predicates.addAll(
+              List.of(
+                  builder.isTrue(userRoot.get(JournalUserPO_.admin)),
+                  userRoot.get(JournalUserPO_.user).get(UserPO_.id).in(value.adminId())));
+        }
+
+        if (!value.memberId().isEmpty()) {
+          predicates.addAll(
+              List.of(
+                  builder.isFalse(userRoot.get(JournalUserPO_.admin)),
+                  userRoot.get(JournalUserPO_.user).get(UserPO_.id).in(value.memberId())));
+        }
       }
 
-      if (!value.memberId().isEmpty()) {
-        var subquery = query.subquery(UUID.class);
-        final var subroot = subquery.from(JournalUserPO.class);
-        subquery =
-            subquery
-                .select(subroot.get(JournalUserPO_.journal).get(JournalPO_.id))
-                .distinct(true)
-                .where(
-                    builder.and(
-                        subroot.get(JournalUserPO_.user).get(UserPO_.id).in(value.memberId()),
-                        builder.isFalse(subroot.get(JournalUserPO_.admin)),
-                        builder.equal(
-                            root.get(JournalPO_.id),
-                            subroot.get(JournalUserPO_.journal).get(JournalPO_.id))));
-        predicates.add(builder.exists(subquery));
-      }
+      if (!value.tag().isEmpty() || !value.fullText().isEmpty()) {
 
-      if (!value.fullText().isEmpty()) {
-        final var fullTextValue = String.format("%%%s%%", value.fullText());
-        predicates.add(builder.like(builder.lower(root.get(JournalPO_.name)), fullTextValue));
+        final var tagRoot = builder.lower(root.join(JournalPO_.tags));
+
+        if (!value.tag().isEmpty()) {
+          predicates.add(tagRoot.in(value.tag()));
+        }
+
+        if (!value.fullText().isEmpty()) {
+          final var fullTextValue = String.format("%%%s%%", value.fullText());
+          predicates.add(
+              builder.or(
+                  builder.like(builder.lower(root.get(JournalPO_.name)), fullTextValue),
+                  builder.like(tagRoot, fullTextValue)));
+        }
       }
     }
 

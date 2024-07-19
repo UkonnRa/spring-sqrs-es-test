@@ -30,7 +30,7 @@ public interface JournalTestClient
     @Override
     public Set<JournalPresentation> findAllByIds(@Nullable UUID operatorId, Collection<UUID> ids) {
       final var operator = this.getOperator(operatorId);
-      final var query = new JournalQuery(new HashSet<>(ids), null, null, null);
+      final var query = JournalQuery.builder().id(new HashSet<>(ids)).build();
       return this.journalService.findAll(operator, query, null);
     }
 

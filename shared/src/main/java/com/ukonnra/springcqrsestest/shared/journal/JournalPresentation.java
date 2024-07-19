@@ -16,6 +16,7 @@ public record JournalPresentation(
     String name,
     Set<UUID> admins,
     Set<UUID> members,
+    Set<String> tags,
     Permission permission)
     implements Presentation {
   public static @Nullable JournalPresentation of(
@@ -32,6 +33,7 @@ public record JournalPresentation(
         entity.getName(),
         entity.getAdmins(),
         entity.getMembers(),
+        entity.getTags(),
         permission);
   }
 }
