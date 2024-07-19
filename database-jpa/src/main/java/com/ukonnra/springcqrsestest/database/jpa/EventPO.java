@@ -8,6 +8,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +24,12 @@ import org.springframework.lang.Nullable;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 @Entity(name = EventPO.TYPE)
-@Table(name = EventPO.TYPE)
+@Table(
+    name = EventPO.TYPE,
+    indexes = {
+      @Index(columnList = "aggregateType,id"),
+      @Index(columnList = "id"),
+    })
 public class EventPO {
   private static final List<String> ID_FIELDS = List.of("aggregateType", "id", "version");
 
@@ -30,6 +37,7 @@ public class EventPO {
 
   @EmbeddedId private Id id;
 
+  @Lob
   @Column(nullable = false)
   private String blobValue;
 
@@ -65,7 +73,7 @@ public class EventPO {
 
   @Embeddable
   public record Id(
-      @Column(nullable = false) String aggregateType,
+      @Column(nullable = false, length = 31) String aggregateType,
       @Column(nullable = false) UUID id,
       @Column(nullable = false) int version) {}
 }

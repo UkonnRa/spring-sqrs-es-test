@@ -23,6 +23,15 @@ import org.springframework.stereotype.Service;
 public interface UserService
     extends WriteService<
         User, UserCommand, UserEvent, UserQuery, UserPresentation, UserRepository> {
+
+  @Override
+  default Set<UserPresentation> convert(
+      @Nullable final User operator, final Collection<User> entities) {
+    return entities.stream()
+        .map(entity -> new UserPresentation(operator, entity))
+        .collect(Collectors.toSet());
+  }
+
   @Override
   default Set<Event> doHandleCommand(@Nullable final User user, final UserCommand command) {
     return switch (command) {
@@ -31,14 +40,6 @@ public interface UserService
       case UserCommand.Delete delete -> this.delete(user, Set.of(delete));
       case UserCommand.Update update -> this.update(user, Set.of(update));
     };
-  }
-
-  @Override
-  default Set<UserPresentation> convert(
-      @Nullable final User operator, final Collection<User> entities) {
-    return entities.stream()
-        .map(entity -> new UserPresentation(operator, entity))
-        .collect(Collectors.toSet());
   }
 
   private Set<Event> create(@Nullable final User operator, final Set<UserCommand.Create> commands) {

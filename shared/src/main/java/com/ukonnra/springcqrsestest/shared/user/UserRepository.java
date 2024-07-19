@@ -18,8 +18,8 @@ public interface UserRepository extends EntityRepository<User, UserQuery, UserEv
 
   @Override
   default User getDefaultEntity(UUID id) {
-    final var user = new User();
-    user.setId(id);
-    return user;
+    final var model = new User();
+    model.setId(id);
+    return model;
   }
 }

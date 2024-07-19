@@ -40,7 +40,7 @@ public class UserRepositoryImpl implements UserRepository {
 
   @Override
   public Set<User> findAllByIds(Collection<UUID> ids) {
-    return this.getUserPORepository().findAllById(ids).stream()
+    return this.userPORepository.findAllById(ids).stream()
         .map(UserPO::convertToEntity)
         .collect(Collectors.toSet());
   }
