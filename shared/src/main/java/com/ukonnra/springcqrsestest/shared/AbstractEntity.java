@@ -20,6 +20,8 @@ import org.springframework.lang.Nullable;
 @ToString
 @EqualsAndHashCode
 public abstract class AbstractEntity<V extends Event> implements Entity {
+  public static final String FIELD_ID = "id";
+
   public static final int MIN_NAMELY = 2;
   public static final int MAX_NAMELY = 127;
   public static final int MAX_LONG_TEXT = 1023;

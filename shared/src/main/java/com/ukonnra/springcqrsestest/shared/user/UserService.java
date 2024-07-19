@@ -67,26 +67,61 @@ public interface UserService
     return events;
   }
 
-  private Set<Event> update(@Nullable final User user, final Set<UserCommand.Update> commands) {
+  private Set<Event> update(@Nullable final User operator, final Set<UserCommand.Update> commands) {
     final var ids = commands.stream().map(UserCommand.Update::id).collect(Collectors.toSet());
     final var models =
         this.getRepository().findAllByIds(ids).stream()
             .collect(Collectors.toMap(AbstractEntity::getId, Function.identity()));
+
+    final var loginNames =
+        commands.stream()
+            .map(UserCommand.Update::loginName)
+            .filter(s -> !s.isEmpty())
+            .collect(Collectors.toSet());
+    final var idsByLoginName =
+        this.getRepository().findAll(UserQuery.builder().loginName(loginNames).build()).stream()
+            .collect(Collectors.toMap(User::getLoginName, User::getId));
+
     return commands.stream()
         .map(
             command -> {
               final var model = models.get(command.id());
-              if (model == null) {
+              if (model == null || command.empty()) {
                 return null;
               }
 
-              model.setVersion(model.getVersion() + 1);
-              return new UserEvent.Updated(
-                  model.getId(),
-                  model.getVersion(),
-                  command.loginName(),
-                  command.displayName(),
-                  command.systemAdmin());
+              final var permission = model.getPermission(operator);
+
+              if (!command.loginName().isEmpty()) {
+                if (!permission.isWriteable(User.FIELD_LOGIN_NAME)) {
+                  throw new NoPermissionError(
+                      User.TYPE, model.getId(), Set.of(User.FIELD_LOGIN_NAME));
+                }
+
+                final var existingId = idsByLoginName.get(command.loginName());
+                if (existingId != null && !existingId.equals(model.getId())) {
+                  throw new AlreadyExistedError(User.TYPE, model.getId());
+                }
+              }
+
+              if (!command.displayName().isEmpty()
+                  && !permission.isWriteable(User.FIELD_DISPLAY_NAME)) {
+                throw new NoPermissionError(
+                    User.TYPE, model.getId(), Set.of(User.FIELD_DISPLAY_NAME));
+              }
+
+              final var event =
+                  new UserEvent.Updated(
+                      model.getId(),
+                      model.getVersion() + 1,
+                      command.loginName(),
+                      command.displayName(),
+                      command.systemAdmin());
+              model.handleEvent(event);
+
+              idsByLoginName.put(model.getLoginName(), model.getId());
+
+              return event;
             })
         .filter(Objects::nonNull)
         .collect(Collectors.toSet());
@@ -94,13 +129,22 @@ public interface UserService
 
   private Set<Event> delete(
       @Nullable final User user, final Collection<UserCommand.Delete> commands) {
-    return this.deleteByIds(user, commands.stream().map(c -> c.id()).collect(Collectors.toSet()));
+    return this.deleteByIds(
+        user, commands.stream().map(UserCommand.Delete::id).collect(Collectors.toSet()));
   }
 
-  private Set<Event> deleteByIds(@Nullable final User user, final Collection<UUID> ids) {
+  private Set<Event> deleteByIds(@Nullable final User operator, final Collection<UUID> ids) {
     final var models = this.getRepository().findAllByIds(ids);
+    final var now = Instant.now();
     return models.stream()
-        .map(model -> new UserEvent.Deleted(model.getId(), model.getVersion() + 1, Instant.now()))
+        .map(
+            model -> {
+              if (!model.getPermission(operator).isWriteable()) {
+                throw new NoPermissionError(User.TYPE, model.getId());
+              }
+
+              return new UserEvent.Deleted(model.getId(), model.getVersion() + 1, now);
+            })
         .collect(Collectors.toSet());
   }
 

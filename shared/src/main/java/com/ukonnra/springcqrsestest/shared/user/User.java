@@ -1,6 +1,7 @@
 package com.ukonnra.springcqrsestest.shared.user;
 
 import com.ukonnra.springcqrsestest.shared.AbstractEntity;
+import com.ukonnra.springcqrsestest.shared.Permission;
 import jakarta.validation.constraints.Size;
 import java.util.Optional;
 import java.util.Set;
@@ -75,20 +76,15 @@ public class User extends AbstractEntity<UserEvent> {
     }
   }
 
-  /**
-   * @param operator The auth user in this query; can be {@code null}.
-   * @return {@code null} means no write permission; {@link Set#isEmpty()} means write permission on
-   *     all fields; otherwise, means write permission on the listed fields
-   */
-  public @Nullable Set<String> calculateWritePermission(@Nullable User operator) {
+  public Permission getPermission(@Nullable User operator) {
     if (operator == null) {
-      return null;
+      return Permission.EMPTY;
     } else if (operator.systemAdmin) {
-      return Set.of();
+      return Permission.ALL;
     } else if (operator.getId().equals(this.getId())) {
-      return Set.of(FIELD_LOGIN_NAME, FIELD_DISPLAY_NAME);
+      return new Permission(this, Set.of(FIELD_LOGIN_NAME, FIELD_DISPLAY_NAME));
     } else {
-      return null;
+      return Permission.EMPTY;
     }
   }
 }

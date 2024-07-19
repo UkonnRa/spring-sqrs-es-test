@@ -1,8 +1,8 @@
 package com.ukonnra.springcqrsestest.shared.user;
 
+import com.ukonnra.springcqrsestest.shared.Permission;
 import com.ukonnra.springcqrsestest.shared.Presentation;
 import java.time.Instant;
-import java.util.Set;
 import java.util.UUID;
 import org.springframework.lang.Nullable;
 
@@ -14,7 +14,7 @@ public record UserPresentation(
     String loginName,
     String displayName,
     boolean systemAdmin,
-    @Nullable Set<String> writePermission)
+    Permission permission)
     implements Presentation {
   public UserPresentation(@Nullable final User operator, final User entity) {
     this(
@@ -25,6 +25,6 @@ public record UserPresentation(
         entity.getLoginName(),
         entity.getDisplayName(),
         entity.getSystemAdmin(),
-        entity.calculateWritePermission(operator));
+        entity.getPermission(operator));
   }
 }

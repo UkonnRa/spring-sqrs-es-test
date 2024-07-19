@@ -1,7 +1,9 @@
 package com.ukonnra.springcqrsestest.shared.errors;
 
+import com.ukonnra.springcqrsestest.shared.AbstractEntity;
 import java.net.URI;
 import java.util.Map;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 
 public class AlreadyExistedError extends AbstractError {
@@ -18,5 +20,9 @@ public class AlreadyExistedError extends AbstractError {
             "Entity[type = %s, %s] is already existed",
             type, AbstractError.convertValueMapToString(values)));
     this.getBody().setProperties(Map.of("type", type, "values", values));
+  }
+
+  public AlreadyExistedError(final String type, final UUID id) {
+    this(type, Map.of(AbstractEntity.FIELD_ID, id));
   }
 }

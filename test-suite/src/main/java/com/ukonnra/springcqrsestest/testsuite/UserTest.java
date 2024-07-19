@@ -23,52 +23,61 @@ public interface UserTest {
 
   UserRepository getUserRepository();
 
-  @Test
-  default void testCreateUser() {
+  private User createAdmin() {
     // Setup
     final var operatorId = UUID.randomUUID();
     final var operatorEvent =
         new UserEvent.Created(
             operatorId, 0, Instant.now(), "admin-" + operatorId, "This is an Admin", true);
-    {
-      this.getEventRepository().saveAll(Set.of(operatorEvent));
-      this.getUserRepository().refreshSnapshots(Set.of(operatorId));
-    }
+    this.getEventRepository().saveAll(Set.of(operatorEvent));
+    this.getUserRepository().refreshSnapshots(Set.of(operatorId));
+
+    return this.getUserRepository().findById(operatorId).orElseThrow();
+  }
+
+  @Test
+  default void testCreateUser() {
+    // Setup
+    final var operator = this.createAdmin();
 
     final var command =
         new UserCommand.Create("new login: " + UUID.randomUUID(), "new display", false);
-    this.getUserTestClient().handleCommand(operatorId, command);
+    this.getUserTestClient().handleCommand(operator.getId(), command);
 
     final var query = new UserQuery(null, Set.of(command.loginName()), null);
 
     final var result =
-        this.getUserTestClient().findAll(operatorId, query, null).stream().findFirst().get();
+        this.getUserTestClient().findAll(operator.getId(), query, null).stream()
+            .findFirst()
+            .orElseThrow();
     {
       Assertions.assertEquals(command.loginName(), result.loginName());
       Assertions.assertEquals(command.displayName(), result.displayName());
-      Assertions.assertEquals(Set.of(), result.writePermission());
+      Assertions.assertTrue(result.permission().isWriteable(User.FIELD_SYSTEM_ADMIN));
     }
 
     {
       final var selfResult =
           this.getUserTestClient().findAllByIds(result.id(), Set.of(result.id())).stream()
               .findFirst()
-              .get();
-      Assertions.assertEquals(
-          Set.of(User.FIELD_DISPLAY_NAME, User.FIELD_LOGIN_NAME), selfResult.writePermission());
+              .orElseThrow();
+      Assertions.assertTrue(selfResult.permission().isWriteable(User.FIELD_DISPLAY_NAME));
+      Assertions.assertFalse(selfResult.permission().isWriteable(User.FIELD_SYSTEM_ADMIN));
     }
 
     {
       final var anonymousResult =
           this.getUserTestClient().findAllByIds(null, Set.of(result.id())).stream()
               .findFirst()
-              .get();
-      Assertions.assertNull(anonymousResult.writePermission());
+              .orElseThrow();
+      Assertions.assertFalse(anonymousResult.permission().isWriteable(User.FIELD_DISPLAY_NAME));
     }
   }
 
   @Test
   default void testBatch() {
+    final var operator = this.createAdmin();
+
     final var scope = UUID.randomUUID();
 
     final var command =
@@ -111,7 +120,7 @@ public interface UserTest {
                         new UserCommand.Update(result.id(), "New " + result.loginName(), "", null))
                 .collect(Collectors.toSet()),
             Set.of());
-    this.getUserTestClient().handleCommand(null, updateCommand);
+    this.getUserTestClient().handleCommand(operator.getId(), updateCommand);
 
     final var updatedResults =
         this.getUserTestClient().findAll(null, new UserQuery(null, null, scope.toString()), null);
@@ -158,7 +167,7 @@ public interface UserTest {
                             result.id(), "", "3RD " + result.displayName(), null))
                 .collect(Collectors.toSet()),
             new HashSet<>(ids1));
-    this.getUserTestClient().handleCommand(null, deletedCommand);
+    this.getUserTestClient().handleCommand(operator.getId(), deletedCommand);
 
     final var deletedResults =
         this.getUserTestClient().findAll(null, new UserQuery(null, null, scope.toString()), null);
