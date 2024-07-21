@@ -43,6 +43,86 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@bufbuild/buf-darwin-arm64@npm:1.34.0":
+  version: 1.34.0
+  resolution: "@bufbuild/buf-darwin-arm64@npm:1.34.0"
+  conditions: os=darwin & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@bufbuild/buf-darwin-x64@npm:1.34.0":
+  version: 1.34.0
+  resolution: "@bufbuild/buf-darwin-x64@npm:1.34.0"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@bufbuild/buf-linux-aarch64@npm:1.34.0":
+  version: 1.34.0
+  resolution: "@bufbuild/buf-linux-aarch64@npm:1.34.0"
+  conditions: os=linux & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@bufbuild/buf-linux-x64@npm:1.34.0":
+  version: 1.34.0
+  resolution: "@bufbuild/buf-linux-x64@npm:1.34.0"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@bufbuild/buf-win32-arm64@npm:1.34.0":
+  version: 1.34.0
+  resolution: "@bufbuild/buf-win32-arm64@npm:1.34.0"
+  conditions: os=win32 & cpu=arm64
+  languageName: node
+  linkType: hard
+
+"@bufbuild/buf-win32-x64@npm:1.34.0":
+  version: 1.34.0
+  resolution: "@bufbuild/buf-win32-x64@npm:1.34.0"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"@bufbuild/buf@npm:^1.34.0":
+  version: 1.34.0
+  resolution: "@bufbuild/buf@npm:1.34.0"
+  dependencies:
+    "@bufbuild/buf-darwin-arm64": "npm:1.34.0"
+    "@bufbuild/buf-darwin-x64": "npm:1.34.0"
+    "@bufbuild/buf-linux-aarch64": "npm:1.34.0"
+    "@bufbuild/buf-linux-x64": "npm:1.34.0"
+    "@bufbuild/buf-win32-arm64": "npm:1.34.0"
+    "@bufbuild/buf-win32-x64": "npm:1.34.0"
+  dependenciesMeta:
+    "@bufbuild/buf-darwin-arm64":
+      optional: true
+    "@bufbuild/buf-darwin-x64":
+      optional: true
+    "@bufbuild/buf-linux-aarch64":
+      optional: true
+    "@bufbuild/buf-linux-x64":
+      optional: true
+    "@bufbuild/buf-win32-arm64":
+      optional: true
+    "@bufbuild/buf-win32-x64":
+      optional: true
+  bin:
+    buf: bin/buf
+    protoc-gen-buf-breaking: bin/protoc-gen-buf-breaking
+    protoc-gen-buf-lint: bin/protoc-gen-buf-lint
+  checksum: 10/cdbf532ec0f056b4c228f2aa69cce5a781b6513d3b91fffc41857de852d3bece2e5a9c37b48a4d67a900bac7dd50bd1bc14164dec3700258c5cfe31659da611b
+  languageName: node
+  linkType: hard
+
+"@bufbuild/protobuf@npm:^1.10.0":
+  version: 1.10.0
+  resolution: "@bufbuild/protobuf@npm:1.10.0"
+  checksum: 10/1f120f72bbb40dd3d0f8c73f1474b001cfb9be09c38b7b0292e35fec98c5184a3db380a6feff7626fb3fff108c8a8aa7fc8cfea14904dc0a1174a01c8e637cc6
+  languageName: node
+  linkType: hard
+
 "@commitlint/cli@npm:19.3.0, @commitlint/cli@npm:^19.3.0":
   version: 19.3.0
   resolution: "@commitlint/cli@npm:19.3.0"
@@ -1816,6 +1896,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "root-workspace-0b6124@workspace:."
   dependencies:
+    "@bufbuild/buf": "npm:^1.34.0"
+    "@bufbuild/protobuf": "npm:^1.10.0"
     "@commitlint/cli": "npm:19.3.0"
     "@commitlint/config-conventional": "npm:19.2.2"
     commitizen: "npm:^4.3.0"

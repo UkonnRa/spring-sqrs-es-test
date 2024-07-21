@@ -1,0 +1,10 @@
+version: v2
+modules:
+  - path: endpoint-grpc/src/main/proto
+lint:
+  use:
+    - DEFAULT
+    - PACKAGE_NO_IMPORT_CYCLE
+breaking:
+  use:
+    - FILE
