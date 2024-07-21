@@ -1,5 +1,7 @@
 package com.ukonnra.springcqrsestest.shared;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import org.springframework.lang.Nullable;
 
@@ -14,6 +16,14 @@ public record Permission(@Nullable Set<String> fields) {
   public <E extends AbstractEntity<?>> Permission(
       final E entity, final @Nullable Set<String> fields) {
     this(entity.getDeletedDate() != null ? null : fields);
+  }
+
+  public Permission() {
+    this(null);
+  }
+
+  public Permission(final Collection<String> fields) {
+    this(new HashSet<>(fields));
   }
 
   public boolean isWriteable(String field) {

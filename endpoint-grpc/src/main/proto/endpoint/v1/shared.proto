@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package endpoint.v1;
+
+option java_multiple_files = false;
+option java_package = "com.ukonnra.springcqrsestest.endpoint.grpc.proto";
+option java_outer_classname = "SharedProto";
+
+message Permission {
+  PermissionFields value = 1;
+}
+
+message PermissionFields {
+  repeated string fields = 1;
+}
+
+message HandleCommandResponse {
+
+}

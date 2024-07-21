@@ -18,6 +18,7 @@ dependencies {
   implementation(project(":shared"))
   implementation(project(":database-jpa"))
   implementation("net.devh:grpc-server-spring-boot-starter:${Version.GRPC_STRING}")
+  implementation("org.springframework.boot:spring-boot-starter-security")
 
   compileOnly("jakarta.annotation:jakarta.annotation-api:${Version.JAKARTA_ANNOTATION}")
 

@@ -6,21 +6,33 @@ import io.grpc.netty.shaded.io.netty.buffer.AbstractByteBufAllocator;
 import io.grpc.netty.shaded.io.netty.util.ReferenceCountUtil;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.AllArgsConstructor;
+import net.devh.boot.grpc.server.security.authentication.BasicGrpcAuthenticationReader;
+import net.devh.boot.grpc.server.security.authentication.GrpcAuthenticationReader;
 import org.springframework.aot.hint.ExecutableMode;
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 
 @Configuration
 @Import({SharedConfiguration.class, DatabaseJpaConfiguration.class})
 @AllArgsConstructor
 @EnableAsync
+@EnableGlobalAuthentication
 @ImportRuntimeHints(ApplicationConfiguration.RuntimeHints.class)
 public class ApplicationConfiguration {
   static class RuntimeHints implements RuntimeHintsRegistrar {
@@ -59,5 +71,32 @@ public class ApplicationConfiguration {
                 classLoader, JCTOOLS_PKG + e.getKey(), hint -> hint.withField(e.getValue()));
       }
     }
+  }
+
+  @Bean
+  AuthenticationProvider authenticationProvider() {
+    return new AuthenticationProvider() {
+      @Override
+      public Authentication authenticate(Authentication authentication)
+          throws AuthenticationException {
+        return new UsernamePasswordAuthenticationToken(
+            authentication.getPrincipal(), authentication.getCredentials(), Set.of());
+      }
+
+      @Override
+      public boolean supports(Class<?> authentication) {
+        return authentication.isAssignableFrom(UsernamePasswordAuthenticationToken.class);
+      }
+    };
+  }
+
+  @Bean
+  AuthenticationManager authenticationManager() {
+    return new ProviderManager(List.of(this.authenticationProvider()));
+  }
+
+  @Bean
+  GrpcAuthenticationReader authenticationReader() {
+    return new BasicGrpcAuthenticationReader();
   }
 }

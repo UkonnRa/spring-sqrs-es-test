@@ -147,7 +147,7 @@ subprojects {
             val jarLocation = "${project.name}-${version}.jar"
             exec {
               workingDir("${buildDir}/libs")
-              commandLine("jar", "xf", jarLocation)
+              commandLine("${System.getProperty("java.home")}/bin/jar", "xf", jarLocation)
             }
 
             val jdepsOutput = ByteArrayOutputStream()

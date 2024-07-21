@@ -27,7 +27,7 @@ public class UserRepositoryImpl implements UserRepository {
     final List<UserPO> pos;
 
     final var specification = new UserSpecification(query);
-    final var page = size != null && size >= 0 ? Pageable.ofSize(size) : null;
+    final var page = size != null && size > 0 ? Pageable.ofSize(size) : null;
 
     if (page != null) {
       pos = this.userPORepository.findAll(specification, page).getContent();
