@@ -9,7 +9,7 @@ import java.util.UUID;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-public interface GrpcServiceMixin {
+public interface EndpointGrpcService {
   UserRepository getUserRepository();
 
   default @Nullable User getOperator() {
@@ -26,11 +26,11 @@ public interface GrpcServiceMixin {
     }
   }
 
-  default Instant convertFromProto(Timestamp proto) {
+  static Instant convertFromProto(Timestamp proto) {
     return Instant.ofEpochSecond(proto.getSeconds(), proto.getNanos());
   }
 
-  default Permission convertFromProto(SharedProto.Permission proto) {
+  static Permission convertFromProto(SharedProto.Permission proto) {
     if (proto.hasValue()) {
       return new Permission(proto.getValue().getFieldsList());
     } else {
@@ -38,14 +38,14 @@ public interface GrpcServiceMixin {
     }
   }
 
-  default Timestamp convertToProto(Instant model) {
+  static Timestamp convertToProto(Instant model) {
     return Timestamp.newBuilder()
         .setSeconds(model.getEpochSecond())
         .setNanos(model.getNano())
         .build();
   }
 
-  default SharedProto.Permission convertToProto(Permission model) {
+  static SharedProto.Permission convertToProto(Permission model) {
     if (model.fields() == null) {
       return SharedProto.Permission.getDefaultInstance();
     }

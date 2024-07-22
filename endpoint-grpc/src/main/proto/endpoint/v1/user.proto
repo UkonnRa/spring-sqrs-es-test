@@ -28,20 +28,20 @@ message UserQuery {
   string full_text = 3;
 }
 
-message FindOneRequest {
+message UserServiceFindOneRequest {
   UserQuery query = 1;
 }
 
-message FindOneResponse {
+message UserServiceFindOneResponse {
   User value = 1;
 }
 
-message FindAllRequest {
+message UserServiceFindAllRequest {
   UserQuery query = 1;
   uint32 size = 2;
 }
 
-message FindAllResponse {
+message UserServiceFindAllResponse {
   repeated User values = 1;
 }
 
@@ -51,10 +51,15 @@ message UserCommandCreate {
   bool system_admin = 3;
 }
 
-message UserCommandUpdate{
-  google.protobuf.StringValue login_name = 1;
-  google.protobuf.StringValue display_name = 2;
-  google.protobuf.BoolValue system_admin = 3;
+message UserCommandUpdate {
+  string id = 1;
+  string login_name = 2;
+  string display_name = 3;
+  google.protobuf.BoolValue system_admin = 4;
+}
+
+message UserCommandDelete {
+  string id = 1;
 }
 
 message UserCommandBatch {
@@ -63,17 +68,21 @@ message UserCommandBatch {
   repeated string delete = 3;
 }
 
-message HandleCommandRequest {
+message UserServiceHandleCommandRequest {
   oneof command {
     UserCommandCreate create = 1;
     UserCommandUpdate update = 2;
-    string delete = 3;
+    UserCommandDelete delete = 3;
     UserCommandBatch batch = 4;
   }
 }
 
+message UserServiceHandleCommandResponse {
+
+}
+
 service UserService {
-  rpc FindOne(FindOneRequest) returns (FindOneResponse);
-  rpc FindAll(FindAllRequest) returns (FindAllResponse);
-  rpc HandleCommand(HandleCommandRequest) returns (endpoint.v1.HandleCommandResponse);
+  rpc FindOne(UserServiceFindOneRequest) returns (UserServiceFindOneResponse);
+  rpc FindAll(UserServiceFindAllRequest) returns (UserServiceFindAllResponse);
+  rpc HandleCommand(UserServiceHandleCommandRequest) returns (UserServiceHandleCommandResponse);
 }

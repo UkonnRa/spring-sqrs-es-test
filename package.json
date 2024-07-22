@@ -7,7 +7,7 @@
   },
   "private": true,
   "devDependencies": {
-    "@bufbuild/buf": "^1.34.0",
+    "@bufbuild/buf": "^1.35.0",
     "@bufbuild/protobuf": "^1.10.0",
     "@commitlint/cli": "19.3.0",
     "@commitlint/config-conventional": "19.2.2",
@@ -22,7 +22,7 @@
     "postinstall": "husky",
     "lint:fix": "./gradlew spotlessApply",
     "lint": "buf lint && ./gradlew check",
-    "test": "./gradlew test",
+    "test": "./gradlew test nativeTest",
     "test:coverage": "./gradlew testCodeCoverageReport",
     "upgrade": "yarn upgrade-interactive && rimraf '.yarn/cache' 'node_modules/' 'yarn.lock' && yarn && yarn upgrade:java",
     "upgrade:java": "./gradlew dependencyUpdates"

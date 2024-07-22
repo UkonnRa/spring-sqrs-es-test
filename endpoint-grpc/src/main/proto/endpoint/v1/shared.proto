@@ -13,7 +13,3 @@ message Permission {
 message PermissionFields {
   repeated string fields = 1;
 }
-
-message HandleCommandResponse {
-
-}
