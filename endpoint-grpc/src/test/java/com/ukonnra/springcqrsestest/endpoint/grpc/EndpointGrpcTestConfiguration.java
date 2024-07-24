@@ -1,5 +1,6 @@
 package com.ukonnra.springcqrsestest.endpoint.grpc;
 
+import com.ukonnra.springcqrsestest.endpoint.grpc.proto.JournalServiceGrpc;
 import com.ukonnra.springcqrsestest.endpoint.grpc.proto.UserServiceGrpc;
 import com.ukonnra.springcqrsestest.testsuite.TestSuiteConfiguration;
 import io.grpc.Channel;
@@ -38,5 +39,14 @@ public class EndpointGrpcTestConfiguration {
         factory.createStub(
             UserServiceGrpc.UserServiceBlockingStub.class,
             channelFactory.createChannel("userService"));
+  }
+
+  @Bean
+  JournalServiceGrpc.JournalServiceBlockingStub journalServiceStub(
+      final BlockingStubFactory factory, final GrpcChannelFactory channelFactory) {
+    return (JournalServiceGrpc.JournalServiceBlockingStub)
+        factory.createStub(
+            JournalServiceGrpc.JournalServiceBlockingStub.class,
+            channelFactory.createChannel("journalService"));
   }
 }

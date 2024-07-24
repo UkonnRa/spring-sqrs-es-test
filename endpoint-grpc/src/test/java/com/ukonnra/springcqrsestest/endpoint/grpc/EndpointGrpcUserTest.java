@@ -30,9 +30,9 @@ import org.springframework.stereotype.Service;
 @SpringBootTest(
     classes = {EndpointGrpcTestConfiguration.class, UserServiceImpl.class},
     properties = {
-      "grpc.server.inProcessName=test",
+      "grpc.server.inProcessName=user",
       "grpc.server.port=-1",
-      "grpc.client.userService.address=in-process:test"
+      "grpc.client.userService.address=in-process:user"
     })
 public class EndpointGrpcUserTest implements UserTest {
   private final EventRepository eventRepository;

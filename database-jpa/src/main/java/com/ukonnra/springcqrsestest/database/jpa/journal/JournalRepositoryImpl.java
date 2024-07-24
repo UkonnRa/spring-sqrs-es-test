@@ -32,7 +32,7 @@ public class JournalRepositoryImpl implements JournalRepository {
     final List<JournalPO> pos;
 
     final var specification = new JournalSpecification(query);
-    final var page = size != null && size >= 0 ? Pageable.ofSize(size) : null;
+    final var page = size != null && size > 0 ? Pageable.ofSize(size) : null;
 
     if (page != null) {
       pos = this.journalPORepository.findAll(specification, page).getContent();

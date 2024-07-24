@@ -65,21 +65,22 @@ public class UserServiceImpl extends UserServiceGrpc.UserServiceImplBase
       StreamObserver<UserProto.UserServiceHandleCommandResponse> responseObserver) {
     final var operator = this.getOperator();
 
-    final UserCommand command;
-    if (request.hasCreate()) {
-      command = this.convertFromProto(request.getCreate());
-    } else if (request.hasUpdate()) {
-      command = this.convertFromProto(request.getUpdate());
-    } else if (request.hasDelete()) {
-      command = this.convertFromProto(request.getDelete());
-    } else {
-      command = this.convertFromProto(request.getBatch());
-    }
-
-    this.userService.handleCommand(operator, command);
+    this.userService.handleCommand(operator, this.convertFromProto(request));
 
     responseObserver.onNext(UserProto.UserServiceHandleCommandResponse.getDefaultInstance());
     responseObserver.onCompleted();
+  }
+
+  private UserCommand convertFromProto(final UserProto.UserServiceHandleCommandRequest proto) {
+    if (proto.hasCreate()) {
+      return this.convertFromProto(proto.getCreate());
+    } else if (proto.hasUpdate()) {
+      return this.convertFromProto(proto.getUpdate());
+    } else if (proto.hasDelete()) {
+      return this.convertFromProto(proto.getDelete());
+    } else {
+      return this.convertFromProto(proto.getBatch());
+    }
   }
 
   private UserCommand.Create convertFromProto(final UserProto.UserCommandCreate proto) {

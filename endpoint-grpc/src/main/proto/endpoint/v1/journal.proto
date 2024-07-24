@@ -20,7 +20,7 @@ message Journal {
   repeated string admins = 6;
   repeated string members = 7;
   repeated string tags = 8;
-  repeated Permission permission = 9;
+  Permission permission = 9;
 }
 
 message JournalQuery {
