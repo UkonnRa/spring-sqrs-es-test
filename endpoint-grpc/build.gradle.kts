@@ -8,12 +8,14 @@ plugins {
 object Version {
   const val GRPC_STRING = "3.1.0.RELEASE"
   const val PROTOC = "3.25.3"
+  const val PROTOBUF = "4.27.2"
   const val GRPC = "1.65.1"
   const val JAKARTA_ANNOTATION = "1.3.5"
 }
 
 dependencies {
   implementation(platform("io.grpc:grpc-bom:${Version.GRPC}"))
+  implementation(platform("com.google.protobuf:protobuf-bom:${Version.PROTOBUF}"))
 
   implementation(project(":shared"))
   implementation(project(":database-jpa"))
