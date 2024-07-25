@@ -8,6 +8,8 @@ import com.ukonnra.springcqrsestest.shared.SharedConfiguration;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Set;
+import liquibase.changelog.FastCheckService;
+import liquibase.changelog.visitor.ValidatingVisitorGeneratorFactory;
 import liquibase.database.LiquibaseTableNamesFactory;
 import liquibase.report.ShowSummaryGeneratorFactory;
 import liquibase.ui.LoggerUIService;
@@ -42,7 +44,9 @@ public class DatabaseJpaConfiguration {
           List.of(
               LoggerUIService.class,
               LiquibaseTableNamesFactory.class,
-              ShowSummaryGeneratorFactory.class)) {
+              ShowSummaryGeneratorFactory.class,
+              ValidatingVisitorGeneratorFactory.class,
+              FastCheckService.class)) {
         for (final var constructor : clz.getDeclaredConstructors()) {
           hints.reflection().registerConstructor(constructor, ExecutableMode.INVOKE);
         }

@@ -7,9 +7,9 @@ plugins {
 
 object Version {
   const val GRPC_STRING = "3.1.0.RELEASE"
-  const val PROTOC = "3.25.3"
-  const val PROTOBUF = "4.27.2"
-  const val GRPC = "1.65.1"
+  const val PROTOC = "4.29.2"
+  const val PROTOBUF = "4.29.2"
+  const val GRPC = "1.69.0"
   const val JAKARTA_ANNOTATION = "1.3.5"
 }
 
